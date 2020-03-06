@@ -1,0 +1,54 @@
+ELAN FORMATION   JMERISE
+Page 1 sur 1
+Exercice Voiture
+Vous êtes en charge de concevoir et gérer une base de données de véhicules.
+Celle-ci devra pouvoir stocker des véhicules identifiés par un numéro unique, une plaque d’immatriculation, une marque (ex : PEUGEOT), un modèle (ex : 5008), un nombre de portes, une origine (ex : Allemagne pour BMW, France pour PEUGEOT, etc.). Chaque véhicule pourra être d’une ou plusieurs couleurs et être d’une seule motorisation (Essence, Diesel, Hybride, …).
+Travail à réaliser :
+1. Réaliser le MCD / MLD d'une telle application
+2. Générer le script de création de la base de données (à enregistrer en monScript.sql)
+3. Réalisez les requêtes SQL suivantes avec PhpMyAdmin (rédigez les requêtes dans un document Word afin de garder un historique de celles-ci) :
+
+a. Lister les véhicules (plaque immatriculation + modèle + marque) de marque française
+SELECT PLAQUE_IMMATRICULATION, m.MODELE, MARQUE, PAYS
+FROM voiture v, modele m, marque_voiture m_q, origine o
+WHERE v.ID_MODELE = m.ID_MODELE
+AND m.ID_MARQUE_VOITURE = m_q.ID_MARQUE_VOITURE
+AND m_q.ID_ORIGINE = o.ID_ORIGINE
+AND PAYS = "FRANCE"
+
+
+b. Nombre de véhicules par marque (trié par nombre de véhicules décroissant)
+SELECT MARQUE,COUNT(*) AS nbveh
+FROM voiture v, marque_voiture m_v,modele m
+WHERE v.ID_MODELE = m.ID_MODELE
+AND m.ID_MARQUE_VOITURE = m_v.ID_MARQUE_VOITURE
+GROUP BY MARQUE
+ORDER BY nbveh DESC
+
+c. Nombre de véhicules par motorisation (même tri que la 2)
+SELECT MOTORISATION,COUNT(*) AS nbveh
+FROM moteur m, voiture v
+WHERE m.ID_MOTEUR = v.ID_MOTEUR
+GROUP BY MOTORISATION
+ORDER BY nbveh DESC
+
+d. Nombre de véhicules de chaque nationalité (même tri que la 2)
+SELECT PAYS,COUNT(*) AS nbveh
+FROM origine o, marque_voiture m_v, modele m, voiture v
+WHERE o.ID_ORIGINE= m_v.ID_ORIGINE
+AND m_v.ID_MARQUE_VOITURE = m.ID_MARQUE_VOITURE
+AND m.ID_MODELE = v.ID_MODELE
+GROUP BY PAYS
+ORDER BY nbveh DESC
+
+e. Lister les véhicules de couleur grises ET rouge
+SELECT PLAQUE_IMMATRICULATION
+FROM couleur c, coloriser co, voiture v
+WHERE c.ID_COULEUR = co.ID_COULEUR
+AND co.ID_VOITURE = v.ID_VOITURE
+AND COLORISATION = "GRISE"
+
+
+
+
+f. Lister les véhicules Essence et dont l’origine est allemande

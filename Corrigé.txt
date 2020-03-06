@@ -1,0 +1,178 @@
+
+1) Nombre de gaulois par lieu (trié par nombre de gaulois décroissant)
+SELECT NOM_LIEU, COUNT(*) AS nbGaulois
+FROM lieu l, villageois v
+WHERE l.ID_LIEU = v.ID_LIEU
+GROUP BY NOM_LIEU
+ORDER BY nbGaulois DESC
+
+2) Nom des gaulois + spécialité + village
+SELECT NOM, NOM_SPECIALITE,NOM_LIEU
+FROM villageois v, specialite s, lieu l
+WHERE v.ID_SPECIALITE=s.ID_SPECIALITE
+AND v.ID_LIEU=l.ID_LIEU
+ORDER BY NOM
+
+3) Nom des spécialités avec nombre de gaulois par spécialité (trié par nombre de gaulois décroissant)
+SELECT NOM_SPECIALITE, COUNT(*) AS nbGaulois
+FROM specialite s, villageois v
+WHERE s.ID_SPECIALITE=v.ID_SPECIALITE
+GROUP BY NOM_SPECIALITE
+ORDER BY nbGaulois DESC
+
+4) Nom des batailles + lieu de la plus récente à la plus ancienne (dates au format jj/mm/aaaa)
+SELECT NOM_BATAILLE, NOM_LIEU, DATE_FORMAT(DATE_BATAILLE, "%d/%m/%Y") AS Date
+FROM bataille b, lieu l
+WHERE l.ID_LIEU=b.ID_LIEU
+ORDER BY DATE_BATAILLE DESC
+
+5) Nom des potions + coût de réalisation de la potion (trié par coût décroissant)
+SELECT NOM_POTION, CONCAT(SUM(QTE*COUT_INGREDIENT),' euros') AS totalingredient
+FROM potion p, compose c, ingredient i
+WHERE p.ID_POTION=c.ID_POTION
+AND c.ID_INGREDIENT=i.ID_INGREDIENT
+GROUP BY NOM_POTION
+ORDER BY SUM(QTE*COUT_INGREDIENT) DESC
+
+6) Nom des ingrédients + coût + quantité de chaque ingrédient qui composent la potion 'Potion V'
+SELECT NOM_POTION, NOM_INGREDIENT,COUT_INGREDIENT,QTE,COUT_INGREDIENT*QTE AS total
+FROM compose c, ingredient i, potion p
+WHERE c.ID_INGREDIENT=i.ID_INGREDIENT
+AND c.ID_POTION=p.ID_POTION
+AND NOM_POTION="POTION V"
+
+7) Nom du ou des villageois qui ont pris le plus de casques dans la bataille 'Babaorum'
+SELECT NOM_BATAILLE, NOM, QTE 
+FROM bataille b, villageois v,prise_casque p_c
+WHERE v.ID_VILLAGEOIS=p_c.ID_VILLAGEOIS
+AND p_c.ID_BATAILLE=b.ID_BATAILLE
+AND NOM_BATAILLE="Babaorum" 
+ORDER BY QTE DESC
+(SELECT MAX(QTE) FROM prise_casque)
+(SELECT QTE,MAX(QTE) FROM prise_casque GROUP BY QTE)
+PAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINI
+CORRECTION
+SELECT NOM, SUM(QTE) AS total
+FROM bataille b, villageois v,prise_casque p_c
+WHERE v.ID_VILLAGEOIS=p_c.ID_VILLAGEOIS
+AND p_c.ID_BATAILLE=b.ID_BATAILLE
+AND NOM_BATAILLE="Babaorum" 
+GROUP BY NOM
+HAVING SUM(QTE)>= ALL (
+	SELECT SUM(QTE) AS total
+	FROM bataille b, prise_casque p_c
+	WHERE p_c.ID_BATAILLE=b.ID_BATAILLE
+	AND NOM_BATAILLE="Babaorum" 
+	GROUP BY p_c.ID_VILLAGEOIS)   
+
+8) Nom des villageois et la quantité de potion bue (en les classant du plus grand buveur au plus petit)
+SELECT NOM, SUM(DOSE) AS totaldose
+FROM villageois v, boit b
+WHERE v.ID_VILLAGEOIS=b.ID_VILLAGEOIS
+GROUP BY NOM
+ORDER BY totaldose DESC
+
+9) Nom de la bataille où le nombre de casques pris a été le plus important
+SELECT NOM_BATAILLE, SUM(QTE) AS totalcasque
+FROM bataille b, prise_casque p_c
+WHERE p_c.ID_BATAILLE=b.ID_BATAILLE
+GROUP BY NOM_BATAILLE
+ORDER BY totalcasque DESC
+PAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINI
+
+
+
+
+
+
+
+10) Combien existe-t-il de casques de chaque type et quel est leur coût total ? (classés par nombre décroissant)
+SELECT NOM_TYPE_CASQUE,COUNT(*) AS nb_type, SUM(COUT_CASQUE) AS cout_global
+FROM type_casque t_c, casque c
+WHERE t_c.ID_TYPE_CASQUE=c.ID_TYPE_CASQUE
+GROUP BY NOM_TYPE_CASQUE
+ORDER BY cout_global DESC
+
+11) Noms des potions dont un des ingrédients est la cerise
+SELECT NOM_POTION
+FROM potion p, ingredient i, compose c
+WHERE 
+AND
+AND NOM_INGREDIENT = 'cerise'
+
+12) Nom du / des village(s) possédant le plus d'habitants
+SELECT NOM_LIEU, COUNT(*) AS nbHabitants
+FROM villageois v, lieu l
+WHERE v.ID_LIEU = l.ID_LIEU
+GROUP BY NOM_LIEU
+HAVING nbHabitants >= ALL(
+	SELECT COUNT(*)
+	FROM villageois v, lieu l
+	WHERE v.ID_LIEU =l.ID_LIEU
+	GROUP BY l.ID_LIEU)
+OU
+
+SELECT NOM_LIEU, COUNT(*) AS nbHabitants
+FROM villageois v, lieu l
+WHERE v.ID_LIEU = l.ID_LIEU
+GROUP BY NOM_LIEU
+HAVING nbHabitants >= ALL(
+	SELECT COUNT(*)
+	FROM villageois v
+	GROUP BY ID_LIEU)
+
+
+
+
+
+
+13) Noms des villageois qui n'ont jamais bu de potion
+SELECT NOM
+FROM villageois v
+WHERE v.ID_VILLAGEOIS NOT IN (
+	SELECT b.ID_VILLAGEOIS
+	FROM boit b)
+ou
+SELECT NOM
+FROM villageois v
+WHERE !EXISTS(
+	SELECT DOSE
+	FROM boit b
+	WHERE v.ID_VILLAGEOIS = b.ID_VILLAGEOIS)
+13 bis)Noms des villageois qui n'ont jamais bu de potion V
+SELECT NOM
+FROM villageois v
+WHERE v.ID_VILLAGEOIS NOT IN (
+	SELECT b.ID_VILLAGEOIS
+	FROM boit b,potion p
+	WHERE b.ID_POTION = p.ID_POTION
+	AND NOM_POTION="Potion V")
+14) Noms des villages qui contiennent la particule 'um'
+SELECT NOM_LIEU
+FROM lieu
+WHERE NOM_LIEU
+LIKE'%um%
+
+(termine par  %um commence par um%)'
+14bis) Noms des villages qui commence par B ou C
+SELECT NOM_LIEU
+FROM lieu
+WHERE NOM_LIEU
+LIKE'B%'
+OR NOM_LIEU
+LIKE 'C%'
+
+
+15) Nom du / des villageois qui n'ont pas le droit de boire la potion 'Rajeunissement II'
+
+SELECT NOM
+FROM villageois v, potion po, peut pt
+WHERE v.ID_VILLAGEOIS = pt.ID_VILLAGEOIS
+AND
+
+
+
+
+
+
+
