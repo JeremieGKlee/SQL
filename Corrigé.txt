@@ -79,13 +79,15 @@ WHERE p_c.ID_BATAILLE=b.ID_BATAILLE
 GROUP BY NOM_BATAILLE
 ORDER BY totalcasque DESC
 PAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINIPAS FINI PAS FINI PAS FINI
-
-
-
-
-
-
-
+SELECT NOM_BATAILLE, SUM(QTE) AS nbCasques
+FROM bataille b, prise_casque p_c
+WHERE v.ID_VILLAGEOIS=p_c.ID_VILLAGEOIS
+GROUP BY NOM_BATAILLE
+HAVING nbCasques >= ALL (
+	SELECT SUM(QTE)
+	FROM bataille b, prise_casque p_c
+	WHERE p_c.ID_BATAILLE=b.ID_BATAILLE
+	GROUP BY NOM_BATAILLE)
 10) Combien existe-t-il de casques de chaque type et quel est leur coût total ? (classés par nombre décroissant)
 SELECT NOM_TYPE_CASQUE,COUNT(*) AS nb_type, SUM(COUT_CASQUE) AS cout_global
 FROM type_casque t_c, casque c
@@ -96,8 +98,8 @@ ORDER BY cout_global DESC
 11) Noms des potions dont un des ingrédients est la cerise
 SELECT NOM_POTION
 FROM potion p, ingredient i, compose c
-WHERE 
-AND
+WHERE p.ID_POTION = c.ID_POTION 
+AND i.ID_INGREDIENT = c.ID_INGREDIENT
 AND NOM_INGREDIENT = 'cerise'
 
 12) Nom du / des village(s) possédant le plus d'habitants
@@ -168,7 +170,9 @@ LIKE 'C%'
 SELECT NOM
 FROM villageois v, potion po, peut pt
 WHERE v.ID_VILLAGEOIS = pt.ID_VILLAGEOIS
-AND
+AND po.ID_POTION = pt.ID_POTION
+AND NOM_POTION = "Rajeunissement II"
+AND A_LE_DROIT = 0
 
 
 

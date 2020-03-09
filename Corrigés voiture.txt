@@ -41,14 +41,27 @@ AND m.ID_MODELE = v.ID_MODELE
 GROUP BY PAYS
 ORDER BY nbveh DESC
 
-e. Lister les véhicules de couleur grises ET rouge
-SELECT PLAQUE_IMMATRICULATION
+e. Lister les véhicules de couleur grises ET rouge  DISTINC ET IN
+SELECT DISTINCT PLAQUE_IMMATRICULATION
 FROM couleur c, coloriser co, voiture v
 WHERE c.ID_COULEUR = co.ID_COULEUR
 AND co.ID_VOITURE = v.ID_VOITURE
-AND COLORISATION = "GRISE"
-
+AND COLORISATION = "ROUGE"
+AND PLAQUE_IMMATRICULATION IN(
+	SELECT PLAQUE_IMMATRICULATION
+	FROM couleur c, coloriser co, voiture v
+	WHERE c.ID_COULEUR = co.ID_COULEUR
+	AND co.ID_VOITURE = v.ID_VOITURE
+	AND COLORISATION = "GRISE")
 
 
 
 f. Lister les véhicules Essence et dont l’origine est allemande
+SELECT PLAQUE_IMMATRICULATION, MOTORISATION, PAYS
+FROM moteur m, voiture v, origine o, modele mo, marque_voiture mq
+WHERE m.ID_MOTEUR = v.ID_MOTEUR
+AND v.ID_MODELE =mo.ID_MODELE
+AND mo.ID_MARQUE_VOITURE = mq.ID_MARQUE_VOITURE
+AND mq.ID_ORIGINE =o.ID_ORIGINE
+AND MOTORISATION = "ESSENCE"
+AND PAYS = "ALLEMAGNE"
